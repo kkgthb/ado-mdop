@@ -1,0 +1,10 @@
+.ignoreme
+
+# Some common things to ignore
+.vscode
+
+# Ignore Terraform artifacts
+.terraform*
+terraform.tfstate
+terraform.tfstate.*
+terraform.tfstate.backup
