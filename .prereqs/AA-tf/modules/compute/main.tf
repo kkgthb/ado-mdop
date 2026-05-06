@@ -231,7 +231,7 @@ resource "azurerm_managed_devops_pool" "managed_devops_pool" {
 # # ADO "Project Collection Agent Pool Administrators" org-level group 
 # # and my new ADO "Project Agent Pool Administrators" project-level group.
 # #
-# # Result:  nope.  See error message:
+# # Result:  nope.  Despite queues count through REST API still working fine, see latest error message:
 # ╷
 # │ Error: creating Pool (Subscription: "CENSORED"
 # │ Resource Group Name: "CENSORED-rg-demo"
