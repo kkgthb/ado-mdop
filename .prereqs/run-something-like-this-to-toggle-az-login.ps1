@@ -58,51 +58,51 @@ Function Switch-ToRobot {
     Write-Host "Switched to robot"
 }
 
-$visible_ado_repos_count = (
-    # Credit JMESpath counting https://stackoverflow.com/a/64508522
-    az repos list `
-        --org "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User'))" `
-        --project "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User'))" `
-        --query '[] | length(@)' `
-        --output 'tsv'
-)
-If ((-not $visible_ado_repos_count) -or ($visible_ado_repos_count -eq 0)) {
-    Write-Error 'Your current logged-in state does not seem to have access to any repos in your ADO project of choice.  That seems weird.'
-    # My service principal currently errors out as follows:
-    # VS800075: The project with id 'vstfs:///Classification/TeamProject/CENSORED' does not exist, or you do not have permission to access it.
-    # Update:  it seems better now, with 0, instead of an error.  Had to also set `View project-level information` (https://stackoverflow.com/a/60733122)
-}
-Else {
-    Write-Host "You seem to have access to see $visible_ado_repos_count repos in this ADO project; looks like a good authZ dummy-check start."
-}
+# $visible_ado_repos_count = (
+#     # Credit JMESpath counting https://stackoverflow.com/a/64508522
+#     az repos list `
+#         --org "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User'))" `
+#         --project "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User'))" `
+#         --query '[] | length(@)' `
+#         --output 'tsv'
+# )
+# If ((-not $visible_ado_repos_count) -or ($visible_ado_repos_count -eq 0)) {
+#     Write-Error 'Your current logged-in state does not seem to have access to any repos in your ADO project of choice.  That seems weird.'
+#     # My service principal currently errors out as follows:
+#     # VS800075: The project with id 'vstfs:///Classification/TeamProject/CENSORED' does not exist, or you do not have permission to access it.
+#     # Update:  it seems better now, with 0, instead of an error.  Had to also set `View project-level information` (https://stackoverflow.com/a/60733122)
+# }
+# Else {
+#     Write-Host "You seem to have access to see $visible_ado_repos_count repos in this ADO project; looks like a good authZ dummy-check start."
+# }
 
-$ado_queues_url = ([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User') + [Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User') + '/_apis/distributedtask/queues?api-version=7.1')
-$visible_ado_queues_count = (
-    # Credit JMESpath counting https://stackoverflow.com/a/64508522
-    az rest `
-        --method 'GET' `
-        --resource '499b84ac-1321-427f-aa17-267ca6975798' `
-        --url "$ado_queues_url" `
-        --query 'count' `
-        --output 'tsv'
-)
-If ((-not $visible_ado_queues_count) -or ($visible_ado_queues_count -eq 0)) {
-    Write-Error 'Your current logged-in state does not seem to have access to any queues in your ADO project of choice.  That seems weird.'
-    # Interesting:  I get an "ERROR: Not Found(...)" containing the following, when I made my service principal a queues admin but apparently that is not project membership enough:
-    # {
-    #     "$id": "1",
-    #     "innerException": null,
-    #     "message": "VS800075: The project with id 'vstfs:///Classification/TeamProject/CENSORED' does not exist, or you do not have permission to access it.",
-    #     "typeName": "Microsoft.TeamFoundation.Core.WebApi.ProjectDoesNotExistException, Microsoft.TeamFoundation.Core.WebApi",
-    #     "typeKey": "ProjectDoesNotExistException",
-    #     "errorCode": 0,
-    #     "eventId": 3000
-    # }
-    # Update:  it seems better now, with the same count as my human, instead of an error.  Had to also set `View project-level information` (https://stackoverflow.com/a/60733122)
-}
-Else {
-    Write-Host "You seem to have access to see $visible_ado_queues_count queues in this ADO project; looks like a good authZ dummy-check start."
-}
+# $ado_queues_url = ([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User') + [Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User') + '/_apis/distributedtask/queues?api-version=7.1')
+# $visible_ado_queues_count = (
+#     # Credit JMESpath counting https://stackoverflow.com/a/64508522
+#     az rest `
+#         --method 'GET' `
+#         --resource '499b84ac-1321-427f-aa17-267ca6975798' `
+#         --url "$ado_queues_url" `
+#         --query 'count' `
+#         --output 'tsv'
+# )
+# If ((-not $visible_ado_queues_count) -or ($visible_ado_queues_count -eq 0)) {
+#     Write-Error 'Your current logged-in state does not seem to have access to any queues in your ADO project of choice.  That seems weird.'
+#     # Interesting:  I get an "ERROR: Not Found(...)" containing the following, when I made my service principal a queues admin but apparently that is not project membership enough:
+#     # {
+#     #     "$id": "1",
+#     #     "innerException": null,
+#     #     "message": "VS800075: The project with id 'vstfs:///Classification/TeamProject/CENSORED' does not exist, or you do not have permission to access it.",
+#     #     "typeName": "Microsoft.TeamFoundation.Core.WebApi.ProjectDoesNotExistException, Microsoft.TeamFoundation.Core.WebApi",
+#     #     "typeKey": "ProjectDoesNotExistException",
+#     #     "errorCode": 0,
+#     #     "eventId": 3000
+#     # }
+#     # Update:  it seems better now, with the same count as my human, instead of an error.  Had to also set `View project-level information` (https://stackoverflow.com/a/60733122)
+# }
+# Else {
+#     Write-Host "You seem to have access to see $visible_ado_queues_count queues in this ADO project; looks like a good authZ dummy-check start."
+# }
 
 Function Set-RobotPrivilegesHigh {
     Switch-ToHuman
