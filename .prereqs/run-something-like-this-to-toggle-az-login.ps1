@@ -58,6 +58,21 @@ Function Switch-ToRobot {
     Write-Host "Switched to robot"
 }
 
+$visible_ado_repos_count = (
+    # Credit https://stackoverflow.com/a/64508522
+    az repos list `
+        --org "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User'))" `
+        --project "$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User'))" `
+        --query '[] | length(@)' `
+        --output 'tsv'
+)
+If ((-not $visible_ado_repos_count) -or ($visible_ado_repos_count -eq 0)) {
+    Write-Error 'Your current logged-in state does not seem to have access to any repos in your ADO project of choice.  That seems weird.'
+}
+Else {
+    Write-Host "You seem to have access to see $visible_ado_repos_count repos in this ADO project; looks like a good authZ dummy-check start."
+}
+
 Function Set-RobotPrivilegesHigh {
     Switch-ToHuman
     $robotic_owner_role_assignment = (
