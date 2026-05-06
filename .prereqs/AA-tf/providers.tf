@@ -7,13 +7,6 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 }
 
-# Configure the AzureAPI provider
-provider "azapi" {
-  alias           = "demo"
-  tenant_id       = var.entra_tenant_id
-  subscription_id = var.az_sub_id
-}
-
 # Configure the AzureAD provider
 provider "azuread" {
   alias           = "demo"
