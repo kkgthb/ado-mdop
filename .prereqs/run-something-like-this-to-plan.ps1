@@ -8,6 +8,11 @@ If ($gh_cli_logged_in_user -ne $current_repo_owner) {
     gh auth switch --user $current_repo_owner
 }
 
+# Reinforce robot identity
+[Environment]::SetEnvironmentVariable('ARM_TENANT_ID', [Environment]::GetEnvironmentVariable('DEMOS_my_entra_tenant_id', 'User'), 'Process')
+[Environment]::SetEnvironmentVariable('ARM_CLIENT_ID', [Environment]::GetEnvironmentVariable('DEMOS_my_favorite_workload_identity_client_id', 'User'), 'Process')
+[Environment]::SetEnvironmentVariable('ARM_CLIENT_SECRET', [Environment]::GetEnvironmentVariable('DEMOS_my_favorite_workload_identity_secret', 'User'), 'Process')
+
 Push-Location("$PsScriptRoot/AA-tf")
 
 terraform init
@@ -20,3 +25,9 @@ terraform plan `
     -var ado_project_name="$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User'))"
 
 Pop-Location
+
+# Tear down bonus robot identity
+[Environment]::SetEnvironmentVariable('ARM_CLIENT_SECRET', $null, 'Process')
+[Environment]::SetEnvironmentVariable('ARM_CLIENT_ID', $null, 'Process')
+[Environment]::SetEnvironmentVariable('ARM_TENANT_ID', $null, 'Process')
+
