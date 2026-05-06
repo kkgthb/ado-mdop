@@ -7,3 +7,9 @@ variable "az_sub_id" {
 variable "workload_nickname" {
   type = string
 }
+variable "ado_organization_url" {
+  type = string
+}
+variable "ado_project_name" {
+  type = string
+}
