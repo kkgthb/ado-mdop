@@ -1,9 +1,6 @@
 data "azurerm_client_config" "current_azurerm_config" {
   provider = azurerm.demo
 }
-data "azuread_client_config" "current_azuread_config" {
-  provider = azuread.demo
-}
 
 resource "azurerm_resource_group" "my_resource_group" {
   provider = azurerm.demo
@@ -11,19 +8,19 @@ resource "azurerm_resource_group" "my_resource_group" {
   location = "centralus"
 }
 
-# module "networking" {
-#   source = "./modules/networking"
-#   providers = {
-#     azurerm = azurerm.demo
-#     azuread = azuread.demo
-#   }
-#   resource_group = {
-#     id       = azurerm_resource_group.my_resource_group.id
-#     name     = azurerm_resource_group.my_resource_group.name
-#     location = azurerm_resource_group.my_resource_group.location
-#   }
-#   workload_nickname = var.workload_nickname
-# }
+module "networking" {
+  source = "./modules/networking"
+  providers = {
+    azurerm = azurerm.demo
+  }
+  resource_group = {
+    id       = azurerm_resource_group.my_resource_group.id
+    name     = azurerm_resource_group.my_resource_group.name
+    location = azurerm_resource_group.my_resource_group.location
+  }
+  workload_nickname = var.workload_nickname
+  ms_devopsinfrastructure_object_id = var.ms_devopsinfrastructure_object_id
+}
 
 # module "compute" {
 #   depends_on = [ module.networking ]

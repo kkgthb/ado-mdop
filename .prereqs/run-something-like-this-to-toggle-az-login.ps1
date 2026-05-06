@@ -31,6 +31,16 @@ Function Switch-ToHuman {
 #     [Environment]::GetEnvironmentVariable('DEMOS_my_favorite_workload_identity_secret', 'User')
 # ), 'Process')
 
+# [Environment]::SetEnvironmentVariable('DEMOS_MS_FirstParty_ObjectId_In_My_Entra_For_DevOpsInfrastructure', (
+#         az ad sp show `
+#             --id '31687f79-5e43-4c1e-8c63-d9f4bff5cf8b' `
+#             --query 'id' `
+#             --output 'tsv'
+#     ), 'User')
+# [Environment]::SetEnvironmentVariable('DEMOS_MS_FirstParty_ObjectId_In_My_Entra_For_DevOpsInfrastructure', (
+#     [Environment]::GetEnvironmentVariable('DEMOS_MS_FirstParty_ObjectId_In_My_Entra_For_DevOpsInfrastructure', 'User')
+# ), 'Process')
+
 Function Switch-ToRobot {
     If ($az_is_currently_robot) {
         Write-Host "You are already a robot; no az login work to do."
