@@ -31,4 +31,3 @@ Pop-Location
 [Environment]::SetEnvironmentVariable('ARM_CLIENT_SECRET', $null, 'Process')
 [Environment]::SetEnvironmentVariable('ARM_CLIENT_ID', $null, 'Process')
 [Environment]::SetEnvironmentVariable('ARM_TENANT_ID', $null, 'Process')
-
