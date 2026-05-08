@@ -18,9 +18,9 @@ Function Get-RuntimeAcquisitionInfo {
         [String[]]$CicdPipelineStartTime,
 
         [Parameter(
-            HelpMessage = 'The "build summary" file path (for ADO, should be the "$(Agent.BuildSummaryFile)" YAML variable)'
+            HelpMessage = 'The ADO "temp directory" folder path (for ADO, should be the "$(Agent.TempDirectory)" YAML variable)'
         )]
-        [String[]]$ADOAgentBuildSummaryFilePath
+        [String[]]$ADOAgentTempDirectoryPath
         
     ) # end PARAM
     Begin {} # end BEGIN
@@ -32,9 +32,12 @@ Function Get-RuntimeAcquisitionInfo {
         Write-Host "First step at:    $($firstStepAt.ToString('HH:mm:ss')) UTC"
         Write-Host "Acquisition time: ${acquisitionSec}s"
         If ([System.Environment]::GetEnvironmentVariable('TF_BUILD') -eq 'True') {
+            # Credit:  https://stackoverflow.com/a/77511799
+            $tempFilePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($ADOAgentTempDirectoryPath, "temp.md"))
             Add-Content `
-                -Path "$ADOAgentBuildSummaryFilePath" `
+                -Path "$tempFilePath" `
                 -Value "Acquisition time: ${acquisitionSec}s"
+            Write-Host "##vso[task.uploadsummary]${tempFilePath}"
         }
     } # end PROCESS
     End {} # end END

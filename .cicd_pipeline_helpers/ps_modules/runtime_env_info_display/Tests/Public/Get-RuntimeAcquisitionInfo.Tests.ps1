@@ -35,7 +35,7 @@ Describe "Get-RuntimeAcquisitionInfo" {
         }
         It "should run add-content if running in ADO" {
             Get-RuntimeAcquisitionInfo `
-                -ADOAgentBuildSummaryFilePath 'does_not_matter_because_mocked' `
+                -ADOAgentTempDirectoryPath 'does_not_matter_because_mocked' `
                 -CicdPipelineStartTime "$([String]([DateTime]::UtcNow))" 6>&1 | 
             Out-Null
             Should -Invoke 'Add-Content'
