@@ -50,7 +50,7 @@ Function Test-DnsResolution {
         If ([System.Environment]::GetEnvironmentVariable('TF_BUILD') -eq 'True') {
             Add-Content `
                 -Path "$tempFilePath" `
-                -Value '## DNS Resolution Tests"'
+                -Value '## DNS Resolution Tests'
             Add-Content `
                 -Path "$tempFilePath" `
                 -Value ''
