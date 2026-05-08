@@ -35,7 +35,7 @@ Describe "Get-RuntimeAcquisitionInfo" {
     Describe "trigger ADO-specific branch" {
         BeforeEach {
             [System.Environment]::SetEnvironmentVariable('TF_BUILD', 'True', 'Process')
-            [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', 'does_not_matter', 'Process')
+            [System.Environment]::SetEnvironmentVariable('IS_JUST_PESTER_TEST', 'True', 'Process')
         }
         It "should write a greeting to the unit test if running in ADO" {
             Get-RuntimeAcquisitionInfo `
@@ -47,6 +47,7 @@ Describe "Get-RuntimeAcquisitionInfo" {
             }
         }
         AfterEach {
+            [System.Environment]::SetEnvironmentVariable('IS_JUST_PESTER_TEST', $null, 'Process')
             [System.Environment]::SetEnvironmentVariable('TF_BUILD', $null, 'Process')
         }
     }
