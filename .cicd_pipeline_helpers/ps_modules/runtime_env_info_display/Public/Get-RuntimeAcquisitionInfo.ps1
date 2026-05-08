@@ -34,10 +34,12 @@ Function Get-RuntimeAcquisitionInfo {
         If ([System.Environment]::GetEnvironmentVariable('TF_BUILD') -eq 'True') {
             # Credit:  https://stackoverflow.com/a/77511799
             $tempFilePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($ADOAgentTempDirectoryPath, "temp.md"))
+            Write-Host 'Yes, unit test, we reached this'
             Add-Content `
                 -Path "$tempFilePath" `
                 -Value "Acquisition time: ${acquisitionSec}s"
-            Write-Host "##vso[task.uploadsummary]${tempFilePath}"
+            Write-Host "##vso[task.uploadsummary]${tempFilePath}" # ADO-specific
+            Remove-Item -Path "$tempFilePath" -Force -ErrorAction 'SilentlyContinue'
         }
     } # end PROCESS
     End {} # end END

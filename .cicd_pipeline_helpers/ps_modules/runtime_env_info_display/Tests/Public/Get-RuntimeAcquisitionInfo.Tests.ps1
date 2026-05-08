@@ -3,7 +3,9 @@ BeforeAll {
     Remove-Item 'Function:Get-RuntimeAcquisitionInfo' `
         -ErrorAction 'SilentlyContinue'
     . "$PSScriptRoot\..\..\Public\Get-RuntimeAcquisitionInfo.ps1"
-    Mock Add-Content {} 
+    Mock -CommandName Write-Host -ParameterFilter {
+        $Object -eq 'Yes, unit test, we reached this'
+    }
 }
 
 Describe "Get-RuntimeAcquisitionInfo" {
@@ -23,22 +25,26 @@ Describe "Get-RuntimeAcquisitionInfo" {
         $output | Should -Match 'Acquisition time: \d{4}\.\d+?' # 1800.something
     }
 
-    It "should not run add-content if outside ADO" {
+    It "should not write any greeting to the unit test if outside ADO" {
         Get-RuntimeAcquisitionInfo -CicdPipelineStartTime "$([String]([DateTime]::UtcNow))" 6>&1 | Out-Null
-        Should -Not -Invoke 'Add-Content'
+        Assert-MockCalled -CommandName 'Write-Host' -Exactly 0 -ParameterFilter {
+            $Object -eq 'Yes, unit test, we reached this'
+        }
     }
 
-    Describe "trigger add-content" {
+    Describe "trigger ADO-specific branch" {
         BeforeEach {
             [System.Environment]::SetEnvironmentVariable('TF_BUILD', 'True', 'Process')
             [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', 'does_not_matter', 'Process')
         }
-        It "should run add-content if running in ADO" {
+        It "should write a greeting to the unit test if running in ADO" {
             Get-RuntimeAcquisitionInfo `
-                -ADOAgentTempDirectoryPath 'does_not_matter_because_mocked' `
+                -ADOAgentTempDirectoryPath "$PSScriptRoot" `
                 -CicdPipelineStartTime "$([String]([DateTime]::UtcNow))" 6>&1 | 
             Out-Null
-            Should -Invoke 'Add-Content'
+            Assert-MockCalled -CommandName 'Write-Host' -Exactly 1 -ParameterFilter {
+                $Object -eq 'Yes, unit test, we reached this'
+            }
         }
         AfterEach {
             [System.Environment]::SetEnvironmentVariable('TF_BUILD', $null, 'Process')
