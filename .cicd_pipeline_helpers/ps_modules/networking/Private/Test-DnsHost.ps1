@@ -31,22 +31,18 @@ Function Test-DnsHost {
             Select-Object -First 5
             $result = $addrs -join ', '
             If ($Expect -eq 'resolve') {
-                $script:results += "✅ $HostName → $result"
-                $script:pass++
+                [PSCustomObject]@{ Result = "✅ $HostName → $result"; Pass = 1; Fail = 0 }
             }
             Else {
-                $script:results += "❌ $HostName resolved ($result) but expected NXDOMAIN"
-                $script:fail++
+                [PSCustomObject]@{ Result = "❌ $HostName resolved ($result) but expected NXDOMAIN"; Pass = 0; Fail = 1 }
             }
         }
         Catch {
             If ($Expect -eq 'nxdomain') {
-                $script:results += "✅ $HostName → NXDOMAIN (expected)"
-                $script:pass++
+                [PSCustomObject]@{ Result = "✅ $HostName → NXDOMAIN (expected)"; Pass = 1; Fail = 0 }
             }
             Else {
-                $script:results += "❌ $HostName → NO RESOLUTION"
-                $script:fail++
+                [PSCustomObject]@{ Result = "❌ $HostName → NO RESOLUTION"; Pass = 0; Fail = 1 }
             }
         }
     } # end PROCESS
