@@ -25,6 +25,11 @@ Function Get-RuntimeAcquisitionInfo {
         Write-Host "Pipeline started: $($pipelineStart.ToString('HH:mm:ss')) UTC"
         Write-Host "First step at:    $($firstStepAt.ToString('HH:mm:ss')) UTC"
         Write-Host "Acquisition time: ${acquisitionSec}s"
+        If ([System.Environment]::GetEnvironmentVariable('TF_BUILD') -eq 'True') {
+            Add-Content `
+                -Path "$([System.Environment]::GetEnvironmentVariable('AGENT_BUILDSUMMARYFILE'))" `
+                -Value "Acquisition time: ${acquisitionSec}s"
+        }
     } # end PROCESS
     End {} # end END
 } # end FUNCTION
