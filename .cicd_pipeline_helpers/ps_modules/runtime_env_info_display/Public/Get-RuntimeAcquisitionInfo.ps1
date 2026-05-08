@@ -15,7 +15,13 @@ Function Get-RuntimeAcquisitionInfo {
             HelpMessage = 'The time at which the CI/CD pipeline started (for ADO, should be the "$(System.PipelineStartTime)" YAML variable)'
         )]
         [ValidateNotNullOrWhiteSpace()]
-        [String[]]$CicdPipelineStartTime
+        [String[]]$CicdPipelineStartTime,
+
+        [Parameter(
+            HelpMessage = 'The "build summary" file path (for ADO, should be the "$(Agent.BuildSummaryFile)" YAML variable)'
+        )]
+        [String[]]$ADOAgentBuildSummaryFilePath
+        
     ) # end PARAM
     Begin {} # end BEGIN
     Process {
@@ -27,7 +33,7 @@ Function Get-RuntimeAcquisitionInfo {
         Write-Host "Acquisition time: ${acquisitionSec}s"
         If ([System.Environment]::GetEnvironmentVariable('TF_BUILD') -eq 'True') {
             Add-Content `
-                -Path "$([System.Environment]::GetEnvironmentVariable('AGENT_BUILDSUMMARYFILE'))" `
+                -Path "$ADOAgentBuildSummaryFilePath" `
                 -Value "Acquisition time: ${acquisitionSec}s"
         }
     } # end PROCESS

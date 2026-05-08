@@ -1,6 +1,5 @@
 BeforeAll {
     [System.Environment]::SetEnvironmentVariable('TF_BUILD', $null, 'Process')
-    [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', $null, 'Process')
     Remove-Item 'Function:Get-RuntimeAcquisitionInfo' `
         -ErrorAction 'SilentlyContinue'
     . "$PSScriptRoot\..\..\Public\Get-RuntimeAcquisitionInfo.ps1"
@@ -35,11 +34,13 @@ Describe "Get-RuntimeAcquisitionInfo" {
             [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', 'does_not_matter', 'Process')
         }
         It "should run add-content if running in ADO" {
-            Get-RuntimeAcquisitionInfo -CicdPipelineStartTime "$([String]([DateTime]::UtcNow))" 6>&1 | Out-Null
+            Get-RuntimeAcquisitionInfo `
+                -ADOAgentBuildSummaryFilePath 'does_not_matter_because_mocked' `
+                -CicdPipelineStartTime "$([String]([DateTime]::UtcNow))" 6>&1 | 
+            Out-Null
             Should -Invoke 'Add-Content'
         }
         AfterEach {
-            [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', $null, 'Process')
             [System.Environment]::SetEnvironmentVariable('TF_BUILD', $null, 'Process')
         }
     }
@@ -47,6 +48,5 @@ Describe "Get-RuntimeAcquisitionInfo" {
 AfterAll {
     Remove-Item 'Function:Get-RuntimeAcquisitionInfo' `
         -ErrorAction 'SilentlyContinue'
-    [System.Environment]::SetEnvironmentVariable('AGENT_BUILDSUMMARYFILE', $null, 'Process')
     [System.Environment]::SetEnvironmentVariable('TF_BUILD', $null, 'Process')
 }
