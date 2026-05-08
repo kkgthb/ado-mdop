@@ -1,4 +1,7 @@
 BeforeAll {
+    Remove-Item 'Function:Test-DnsHost' `
+        -ErrorAction 'SilentlyContinue'
+    . "$PSScriptRoot\..\..\Private\Test-DnsHost.ps1"
     Remove-Item 'Function:Test-DnsResolution' `
         -ErrorAction 'SilentlyContinue'
     . "$PSScriptRoot\..\..\Public\Test-DnsResolution.ps1"
@@ -79,5 +82,7 @@ Describe "Test-DnsResolution" {
 
 AfterAll {
     Remove-Item 'Function:Test-DnsResolution' `
+        -ErrorAction 'SilentlyContinue'
+    Remove-Item 'Function:Test-DnsHost' `
         -ErrorAction 'SilentlyContinue'
 }

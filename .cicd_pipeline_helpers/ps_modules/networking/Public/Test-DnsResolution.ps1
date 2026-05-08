@@ -17,8 +17,9 @@ Function Test-DnsResolution {
         [String[]]$ADOAgentTempDirectoryPath
     ) # end PARAM
     Begin {
-        Remove-Item 'Function:Test-DnsHost' -ErrorAction 'SilentlyContinue' # TODO:  clean up later
-        . "$(Split-Path -Parent $MyInvocation.MyCommand.ScriptBlock.File)\..\Private\Test-DnsHost.ps1" # TODO:  clean up later
+        If (-not (Get-Command 'Test-DnsHost' -ErrorAction SilentlyContinue)) {
+            throw 'Test-DnsHost is not in scope. Dot-source Test-DnsHost.ps1 before calling Test-DnsResolution.'
+        }
         $externalResolveExpectsByFqdnWhileNotFirewalled = [PSCustomObject]@{
             'dev.azure.com'  = 'resolve'
             'www.google.com' = 'resolve'
@@ -100,7 +101,5 @@ Function Test-DnsResolution {
             }
         }
     } # end PROCESS
-    End {
-        Remove-Item 'Function:Test-DnsHost' -ErrorAction 'SilentlyContinue' # TODO:  clean up later
-    } # end END
+    End {} # end END
 } # end FUNCTION

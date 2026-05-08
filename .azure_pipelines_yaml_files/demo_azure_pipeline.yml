@@ -1,0 +1,36 @@
+name: "Validate that Azure Pipelines works as expected."
+
+trigger:
+  branches:
+    include:
+      - "*"
+
+stages:
+  - stage: "only_stage"
+    displayName: "Only stage."
+    jobs:
+      - job: "public_agent_job"
+        displayName: "Public default agent job"
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - pwsh: |
+              . "$(Build.SourcesDirectory)/.cicd_helpers/ps_modules/runtime_env_info_display/Public/Get-RuntimeAcquisitionInfo.ps1"
+              Get-RuntimeAcquisitionInfo `
+                -ADOAgentTempDirectoryPath $(Agent.TempDirectory) `
+                -CicdPipelineStartTime "$(System.PipelineStartTime)"
+            name: "display_public_agent_acquisition_latency"
+            displayName: "Display public agent acquisition latency"
+
+          - pwsh: |
+              . "$(Build.SourcesDirectory)/.cicd_helpers/ps_modules/networking/Public/Get-RuntimeEnvInfoNetworking.ps1"
+              Get-RuntimeEnvInfoNetworking
+            name: "display_public_agent_networking_runtime"
+            displayName: "Display public agent networking runtime info"
+
+          - pwsh: |
+              . "$(Build.SourcesDirectory)/.cicd_helpers/ps_modules/networking/Private/Test-DnsHost.ps1"
+              . "$(Build.SourcesDirectory)/.cicd_helpers/ps_modules/networking/Public/Test-DnsResolution.ps1" # Warning:  depends on Test-DnsHost
+              Test-DnsResolution -ADOAgentTempDirectoryPath $(Agent.TempDirectory)
+            name: "validate_public_agent_dns_resolution"
+            displayName: "Validate public agent DNS resolution"
