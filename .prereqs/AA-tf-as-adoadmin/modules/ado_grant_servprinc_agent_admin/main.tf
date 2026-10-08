@@ -1,3 +1,5 @@
+# ----------- ADO org-level resources ------------
+
 # The "azuredevops_service_principal_entitlement" resource type has pretty cool behavior even without existing TFState:
 # If var.entra_grantee_principal_object_id is already an ADO user, then it'll just set its license type to Stakeholder, 
 # which is fine, because we're purposely using a var.entra_grantee_principal_object_id that should never need more than that.
@@ -16,3 +18,101 @@ resource "azuredevops_service_principal_entitlement" "grantee_sp" {
   origin               = "aad"
   account_license_type = "stakeholder"
 }
+
+data "azuredevops_security_namespace" "ado_org_security_namespace" {
+  name = "Collection"
+}
+
+data "azuredevops_security_namespace_token" "ado_org_security_namespace_token" {
+  namespace_name = "Collection"
+}
+
+# # ----------- ADO org-level group that should not have to exist but oh well ------------
+
+# Allegedly, org-wide agent pools access was no longer needed as of October 2025
+# (https://learn.microsoft.com/en-us/azure/devops/managed-devops-pools/features-timeline?view=azure-devops#october-2025), 
+# but in practice, Microsoft seems to have misimplemented the enhancement, 
+# and deleting Azure Managed DevOps pools, or recreating one of the same name after having deleted an Azure MDP, 
+# still errors out without org-wide agent pool administrator permissions.
+
+# I'm too lazy to Terraform Import, so going a slow-and-lazy idempotent group fetch/create.
+locals {
+  org_group_name = "Project Collection Agent Pool Administrators"
+}
+# The azuredevops_groups data resource takes minutes to run, but at least I get to avoid import clutter in this demo.
+data "azuredevops_groups" "ado_org_all_existing_groups" {}
+locals {
+  org_group_exists = contains(
+    [for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.display_name],
+    local.org_group_name
+  )
+}
+resource "azuredevops_group" "ado_org_pooladmins_group" {
+  count        = local.org_group_exists ? 0 : 1 # Create if wasn't in existing groups
+  display_name = local.org_group_name
+  description  = "Members of this group can add, modify, and delete agent pool configurations for this organization."
+}
+locals {
+  # And now use whichever one was relevant, going forward
+  org_group_descriptor = local.org_group_exists ? one([
+    for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.descriptor
+    if group.display_name == local.org_group_name
+  ]) : azuredevops_group.ado_org_pooladmins_group[0].descriptor
+  org_group_id = local.org_group_exists ? one([
+    for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.id
+    if group.display_name == local.org_group_name
+  ]) : azuredevops_group.ado_org_pooladmins_group[0].group_id
+}
+
+# Now make sure the group has only 1 member -- var.entra_grantee_principal_object_id
+resource "azuredevops_group_membership" "ado_org_pooladmins_members" {
+  # WARNING:  Sadly, if this group already existed with some differet members, 
+  # you are now overwriting and losing those details forever, with the way I coded this.
+  # In my case, I don't care, because I always want local.org_group_name to look like this 
+  # if it exists, and the next-best fallback actually would be no members, 
+  # which is what would happen to the membership for local.org_group_name 
+  # if it already existed as a "data" and therefore didn't get destroyed 
+  # upon Terraform Destroy.
+  # Anyway, point is, if the local.org_group_name survives Terraform Destroy, 
+  # Terraform Destroy will, thanks to this resource, leave it with an empty membership list, 
+  # rather than turning membership back to whatever it "used to be" before we 
+  # brought the permissions of local.org_group_name into Terraform management at all.
+  mode    = "overwrite"
+  group   = local.org_group_descriptor
+  members = [azuredevops_service_principal_entitlement.grantee_sp.descriptor]
+}
+
+# Now make sure this group has admin rights over Agent Pools for the ADO org
+resource "azuredevops_securityrole_assignment" "ado_org_pooladmins_agent_pool_admin" {
+  identity_id = local.org_group_id                    # the ADO org-level group
+  resource_id = "0"                                   # presumed to be the ADO org's all-agent-pools node
+  scope       = "distributedtask.globalagentpoolrole" # the category of role the ADO group should have
+  role_name   = "Administrator"                       # the specific role the ADO group should have, part 2 of 2
+}
+
+# Also, make sure the group can't do anything else.
+locals {
+  ado_org_pooladmins_desired_permissions = {
+    for action in data.azuredevops_security_namespace.ado_org_security_namespace.actions :
+    action.name => action.name == "GENERIC_READ" ? "notset" : "deny"
+  }
+}
+resource "azuredevops_security_permissions" "ado_org_pooladmins_permissions" {
+  # WARNING:  Sadly, if this group already existed with some fancy permissions, 
+  # you are now overwriting and losing those details forever, with the way I coded this.
+  # In my case, I don't care, because I always want local.org_group_name to look like this 
+  # if it exists, and the next-best fallback actually would be across-the-board "Not Set" permissions, 
+  # which is what would happen to the permissions for local.org_group_name 
+  # if it already existed as a "data" and therefore didn't get destroyed 
+  # upon Terraform Destroy.
+  # Anyway, point is, if the local.org_group_name survives Terraform Destroy, 
+  # Terraform Destroy will, thanks to this resource, turn all of its permissions 
+  # to "Not Set," rather than turning them back to whatever they "used to be" before we 
+  # brought the permissions of local.org_group_name into Terraform management at all.
+  replace      = true
+  principal    = local.org_group_descriptor                                                       # the ADO org-level group
+  permissions  = local.ado_org_pooladmins_desired_permissions                                     # the permissions the ADO group should have
+  namespace_id = data.azuredevops_security_namespace.ado_org_security_namespace.id                # the parent ADO org
+  token        = data.azuredevops_security_namespace_token.ado_org_security_namespace_token.token # not sure why, but this for the parent ADO org too
+}
+
