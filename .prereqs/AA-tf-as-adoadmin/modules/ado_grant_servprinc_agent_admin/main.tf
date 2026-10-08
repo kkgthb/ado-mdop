@@ -35,34 +35,32 @@ data "azuredevops_security_namespace_token" "ado_org_security_namespace_token" {
 # and deleting Azure Managed DevOps pools, or recreating one of the same name after having deleted an Azure MDP, 
 # still errors out without org-wide agent pool administrator permissions.
 
-# I'm too lazy to Terraform Import, so going a slow-and-lazy idempotent group fetch/create.
+# Find or create an org-level ADO group named the way I want
 locals {
-  org_group_name = "Project Collection Agent Pool Administrators"
+  desired_org_group_name = "Project Collection Agent Pool Administrators"
 }
-# The azuredevops_groups data resource takes minutes to run, but at least I get to avoid import clutter in this demo.
-data "azuredevops_groups" "ado_org_all_existing_groups" {}
+data "external" "ado_org_pooladmins_group" {
+  program = ["pwsh", "-NoProfile", "-NonInteractive", "-File", "${path.module}/Get-ExistingAdoGroupByName.ps1"]
+  query = {
+    desired_group_name = local.desired_org_group_name
+    scope              = "organization"
+    organization_url   = var.ado_organization_url
+  }
+}
 locals {
-  org_group_exists = contains(
-    [for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.display_name],
-    local.org_group_name
-  )
+  org_group_exists = data.external.ado_org_pooladmins_group.result.exists == "true"
 }
 resource "azuredevops_group" "ado_org_pooladmins_group" {
   count        = local.org_group_exists ? 0 : 1 # Create if wasn't in existing groups
-  display_name = local.org_group_name
+  display_name = local.desired_org_group_name
   description  = "Members of this group can add, modify, and delete agent pool configurations for this organization."
 }
 locals {
   # And now use whichever one was relevant, going forward
-  org_group_descriptor = local.org_group_exists ? one([
-    for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.descriptor
-    if group.display_name == local.org_group_name
-  ]) : azuredevops_group.ado_org_pooladmins_group[0].descriptor
-  org_group_id = local.org_group_exists ? one([
-    for group in data.azuredevops_groups.ado_org_all_existing_groups.groups : group.id
-    if group.display_name == local.org_group_name
-  ]) : azuredevops_group.ado_org_pooladmins_group[0].group_id
+  org_group_descriptor = local.org_group_exists ? data.external.ado_org_pooladmins_group.result.descriptor : azuredevops_group.ado_org_pooladmins_group[0].descriptor
+  org_group_id         = local.org_group_exists ? data.external.ado_org_pooladmins_group.result.id : azuredevops_group.ado_org_pooladmins_group[0].group_id
 }
+
 
 # Now make sure the group has only 1 member -- var.entra_grantee_principal_object_id
 resource "azuredevops_group_membership" "ado_org_pooladmins_members" {

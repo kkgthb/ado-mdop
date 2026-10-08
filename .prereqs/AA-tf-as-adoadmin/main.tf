@@ -15,4 +15,6 @@ module "ado_grant_servprinc_agent_admin" {
     azuredevops = azuredevops.demo
   }
   entra_grantee_principal_object_id = var.entra_grantee_principal_object_id
+  ado_organization_url              = var.ado_organization_url
+  ado_project_name                  = var.ado_project_name
 }

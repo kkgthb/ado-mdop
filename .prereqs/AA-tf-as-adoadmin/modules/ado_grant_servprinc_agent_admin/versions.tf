@@ -3,5 +3,8 @@ terraform {
     azuredevops = {
       source  = "microsoft/azuredevops"
     }
+    external = {
+      source = "hashicorp/external"
+    }
   }
 }
