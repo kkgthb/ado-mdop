@@ -1,4 +1,4 @@
-data "azuredevops_group" "ado_group_ibmgatekeepers" {
+data "azuredevops_group" "ado_group_cicdgatekeepers" {
   # Prerequisite:  force var.entra_group_display_name to exist in ADO 
   # by creating a throwaway project-level group 
   # in the web UI admin portal, 
