@@ -9,6 +9,12 @@ data "azuredevops_client_config" "current_azuredevops_config" {
   }
 }
 
+# TODO:  unravel the mysteries of
+# https://github.com/microsoft/terraform-provider-azuredevops/blob/main/azuredevops/internal/service/graph/data_service_principal.go
+# https://github.com/microsoft/terraform-provider-azuredevops/blob/main/azuredevops/internal/acceptancetests/data_service_principal_test.go
+# https://github.com/microsoft/terraform-provider-azuredevops/blob/main/website/docs/d/service_principal.html.markdown
+# TODO:  figure out why I made the above TODO.  Forgot what was blocking me when I said that.
+
 # The "azuredevops_service_principal_entitlement" resource type has pretty cool behavior even without existing TFState:
 # If var.entra_grantee_principal_object_id is already an ADO user, then it'll just set its license type to Stakeholder, 
 # which is fine, because we're purposely using a var.entra_grantee_principal_object_id that should never need more than that.
