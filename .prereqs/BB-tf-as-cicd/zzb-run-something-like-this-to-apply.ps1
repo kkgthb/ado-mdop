@@ -13,7 +13,7 @@ If ($gh_cli_logged_in_user -ne $current_repo_owner) {
 [Environment]::SetEnvironmentVariable('ARM_CLIENT_ID', [Environment]::GetEnvironmentVariable('DEMOS_my_favorite_workload_identity_client_id', 'User'), 'Process')
 [Environment]::SetEnvironmentVariable('ARM_CLIENT_SECRET', [Environment]::GetEnvironmentVariable('DEMOS_my_favorite_workload_identity_secret', 'User'), 'Process')
 
-Push-Location("$PsScriptRoot/AA-tf")
+Push-Location("$PsScriptRoot")
 
 terraform apply `
     -var entra_tenant_id="$([Environment]::GetEnvironmentVariable('DEMOS_my_entra_tenant_id', 'User'))" `
