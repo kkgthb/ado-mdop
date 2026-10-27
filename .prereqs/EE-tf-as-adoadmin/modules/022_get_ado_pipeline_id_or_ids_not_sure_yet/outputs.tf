@@ -1,1 +1,7 @@
-# Unsure if I want this module to return 1 pipeline ID or all found pipeline IDs (and if all found IDs, whether a list or map and if map in which direction)
+output "ado_pipeline_ids_by_name" {
+  value = local.pipeline_ids_by_name
+  precondition {
+    condition     = length(local.pipeline_ids_by_name) == length(toset(var.ado_pipeline_names))
+    error_message = "The resolved pipeline ID map must contain one entry per unique input pipeline name."
+  }
+}

@@ -51,11 +51,12 @@ module "ado_014_gatekeepers_group_id" {
 }
 
 # ----------- ADO existing pipeline(s) ------------
-module "ado_022_TODO" {
+module "ado_022_preapproved_pipeline_ids" {
   depends_on = [data.azuread_client_config.current_entra_context]
   source     = "./modules/022_get_ado_pipeline_id_or_ids_not_sure_yet"
   providers = {
     azuredevops = azuredevops.demo
   }
-  ado_project_id = data.azuredevops_project.the_ado_project.id
+  ado_project_id     = data.azuredevops_project.the_ado_project.id
+  ado_pipeline_names = var.ado_preapproved_pipeline_names
 }

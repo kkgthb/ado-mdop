@@ -12,6 +12,6 @@ terraform plan `
     -var ado_organization_url="$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_organization_url', 'User'))" `
     -var ado_project_name="$([Environment]::GetEnvironmentVariable('DEMOS_my_ado_project_name', 'User'))" `
     -var entra_gatekeepers_group_display_name="$([Environment]::GetEnvironmentVariable('DEMOS_my_favorite_security_group_display_name', 'User'))" `
-    -var ado_preapproved_pipeline_names="$((@('value1', 'value2') | ConvertTo-Json -Compress))"
+    -var ado_preapproved_pipeline_names="$(ConvertTo-Json -InputObject @([Environment]::GetEnvironmentVariable('DEMOS_my_ado_pipeline_name_1', 'Process')) -Compress)"
 
 Pop-Location

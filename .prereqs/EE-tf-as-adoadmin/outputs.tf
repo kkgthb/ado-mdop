@@ -18,5 +18,5 @@ output "ado_gatekeepers_group_id" {
 }
 
 output "ado_preapproved_pipeline_ids" {
-  value = "TODO_list_of_pipeline_id_strings"
+  value = module.ado_022_preapproved_pipeline_ids.ado_pipeline_ids_by_name
 }
