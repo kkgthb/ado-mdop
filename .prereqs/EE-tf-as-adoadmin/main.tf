@@ -20,6 +20,18 @@ data "azuredevops_client_config" "current_ado_context" {
   }
 }
 
+# ----------- ADO project data spot-check ------------
+data "azuredevops_project" "the_ado_project" {
+  provider = azuredevops.demo
+  name     = var.ado_project_name
+  lifecycle {
+    postcondition {
+      condition     = self.name == var.ado_project_name
+      error_message = "The project data was not fetched out of ADO"
+    }
+  }
+}
+
 # ----------- ADO identity translations ------------
 module "ado_012_current_user_id" {
   depends_on = [data.azuread_client_config.current_entra_context]
@@ -38,3 +50,12 @@ module "ado_014_gatekeepers_group_id" {
   entra_group_display_name = var.entra_gatekeepers_group_display_name
 }
 
+# ----------- ADO existing pipeline(s) ------------
+module "ado_022_TODO" {
+  depends_on = [data.azuread_client_config.current_entra_context]
+  source     = "./modules/022_get_ado_pipeline_id_or_ids_not_sure_yet"
+  providers = {
+    azuredevops = azuredevops.demo
+  }
+  ado_project_id = data.azuredevops_project.the_ado_project.id
+}
