@@ -50,7 +50,7 @@ module "ado_014_gatekeepers_group_id" {
   entra_group_display_name = var.entra_gatekeepers_group_display_name
 }
 
-# ----------- ADO existing pipeline(s) ------------
+# ----------- ADO existing pipelines data ------------
 module "ado_022_preapproved_pipeline_ids" {
   depends_on = [data.azuread_client_config.current_entra_context]
   source     = "./modules/022_get_ado_pipeline_id_or_ids_not_sure_yet"
@@ -59,4 +59,17 @@ module "ado_022_preapproved_pipeline_ids" {
   }
   ado_project_id     = data.azuredevops_project.the_ado_project.id
   ado_pipeline_names = var.ado_preapproved_pipeline_names
+}
+
+# ----------- ADO configure the MDP ------------
+module "ado_042_ado_mdp_config" {
+  depends_on = [module.ado_014_gatekeepers_group_id, module.ado_022_preapproved_pipeline_ids]
+  source     = "./modules/042_ado_mdp_configurations"
+  providers = {
+    azuredevops = azuredevops.demo
+  }
+  ado_project_id                 = data.azuredevops_project.the_ado_project.id
+  ado_azmdp_name                 = var.ado_azmdp_name
+  gatekeepers_group_id           = module.ado_014_gatekeepers_group_id.ado_id_for_entra_group
+  permitted_pipeline_ids_by_name = module.ado_022_preapproved_pipeline_ids.ado_pipeline_ids_by_name
 }
