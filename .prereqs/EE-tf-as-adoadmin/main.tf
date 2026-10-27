@@ -23,9 +23,18 @@ data "azuredevops_client_config" "current_ado_context" {
 # ----------- ADO identity translations ------------
 module "ado_012_current_user_id" {
   depends_on = [data.azuread_client_config.current_entra_context]
-  source     = "./modules/012_get_ado_current_user_identity"
+  source     = "./modules/012_get_ado_user_id_by_entra_id"
   providers = {
     azuredevops = azuredevops.demo
   }
-  entra_current_logged_in_user_object_id = data.azuread_client_config.current_entra_context.object_id
+  entra_user_object_id = data.azuread_client_config.current_entra_context.object_id
 }
+module "ado_014_gatekeepers_group_id" {
+  depends_on = [data.azuread_client_config.current_entra_context]
+  source     = "./modules/014_get_ado_group_id_by_display_name"
+  providers = {
+    azuredevops = azuredevops.demo
+  }
+  entra_group_display_name = var.entra_gatekeepers_group_display_name
+}
+

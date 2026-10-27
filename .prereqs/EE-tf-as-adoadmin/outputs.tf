@@ -7,5 +7,8 @@ output "ado_logged_into_org_name" {
 }
 
 output "ado_logged_in_as" {
-  value = module.ado_012_current_user_id.ado_id_for_entra_current_logged_in_user
+  value = module.ado_012_current_user_id.ado_id_for_entra_user
+}
+output "ado_gatekeepers_group_id" {
+  value = module.ado_014_gatekeepers_group_id.ado_id_for_entra_group
 }

@@ -14,3 +14,7 @@ variable "ado_project_name" {
   type     = string
   nullable = false
 }
+variable "entra_gatekeepers_group_display_name" {
+  type     = string
+  nullable = false
+}
