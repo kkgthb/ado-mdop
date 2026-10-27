@@ -6,6 +6,8 @@ Push-Location("$PsScriptRoot")
 
 terraform init
 
+# I suppose in the real world, I'd be pulling in the Azure Managed DevOps Pool name from the `BB` Terraform, 
+# not from `DEMOS_my_ado_azmdp_name`, if I had read access to the `BB` Terraform state.
 terraform plan `
     -var workload_nickname="$([Environment]::GetEnvironmentVariable('DEMOS_my_workload_nickname', 'User'))" `
     -var entra_tenant_id="$([Environment]::GetEnvironmentVariable('DEMOS_my_entra_tenant_id', 'User'))" `
