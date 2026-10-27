@@ -1,1 +1,1 @@
-Make sure to first run this "AA" codebase against ADO, to make sure that the service principal that'll be running the later "BB" codebase in Azure, actually has sufficient ADO privileges to automatically do the ADO-side stuff Azure's going to try to do.
+Make sure to first run this "AA" codebase against ADO, to make sure that the service principal that'll be running [the later "BB" provisioning stuff](../BB-tf-as-cicd/) against Azure, actually has sufficient ADO privileges to automatically do the ADO-side stuff Azure's going to try to do.

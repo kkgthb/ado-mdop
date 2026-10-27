@@ -4,4 +4,6 @@ Heck, I'm not even sure I finished subnet/VNET/NSG/NSG-rule/routing stuff.
 
 Anyway, this would provion the Azure MDP.
 
-But make sure to first run the "AA" codebase against ADO, to make sure that the service principal that'll be running this "BB" codebase in Azure actually has sufficient ADO privileges to automatically do the ADO-side stuff Azure's going to try to do.
+But make sure to first run [the "AA" ADO-config stuff](../AA-tf-as-adoadmin/), to make sure that the service principal that'll be running this "BB" codebase against Azure actually has sufficient ADO privileges to automatically do the ADO-side stuff Azure's going to try to do.
+
+After this "BB" section's all done & run, don't forget there's [some "EE" ADO-config stuff](../EE-tf-as-adoadmin/) to run as a followup.
