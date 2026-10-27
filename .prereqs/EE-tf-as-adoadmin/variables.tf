@@ -18,3 +18,12 @@ variable "entra_gatekeepers_group_display_name" {
   type     = string
   nullable = false
 }
+variable "ado_preapproved_pipeline_names" {
+  type = list(string)
+  validation {
+    condition = alltrue([
+      for nm in var.ado_preapproved_pipeline_names : nm != ""
+    ])
+    error_message = "No preapproved pipeline name may be blank."
+  }
+}
